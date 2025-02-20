@@ -1,6 +1,7 @@
 package main
 
 import (
+	"agent/coder/internal/docbuilder"
 	"agent/coder/internal/grab"
 	"agent/coder/internal/prompt"
 	"agent/coder/internal/tree"
@@ -77,10 +78,16 @@ func init() {
 				if len(args) > 0 {
 					path = args[0]
 				}
-				// Use the detailed symbols grab function.
 				if err := grab.GrabSummary(path); err != nil {
 					fmt.Println("Error grabbing summary:", err)
 				}
+			},
+		},
+		"docbuilder": {
+			Name:        "docbuilder",
+			Description: "Generates README.md using documentation builder",
+			Handler: func(args []string) {
+				docbuilder.BuildReadme()
 			},
 		},
 		"commands": {
@@ -139,7 +146,6 @@ func main() {
 		return
 	}
 
-	// Pass remaining args to the command handler
+	// Pass remaining args to the command handler.
 	cmd.Handler(os.Args[2:])
 }
-
