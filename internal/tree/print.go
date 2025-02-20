@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"unicode"
 
 	"github.com/fatih/color"
 )
@@ -15,12 +16,13 @@ var funcRegex = regexp.MustCompile(`\bfunc\s+(\(\w+\s+\*?\w+\)\s+)?(\w+)\s*\(([^
 
 // Colored formatters
 var (
-	dirColor       = color.New(color.FgCyan, color.Bold)  // Cyan for directories
-	fileColor      = color.New(color.FgYellow)            // Yellow for files
-	funcColor      = color.New(color.FgGreen, color.Bold) // Green for function names
-	paramColor     = color.New(color.FgMagenta)           // Magenta for parameters
-	returnColor    = color.New(color.FgBlue)              // Blue for return types
-	connectorColor = color.New(color.FgWhite)             // White for tree connectors
+	dirColor        = color.New(color.FgCyan, color.Bold)    // Cyan for directories
+	fileColor       = color.New(color.FgYellow)              // Yellow for files
+	funcColor       = color.New(color.FgGreen, color.Bold)   // Green for function names
+	publicFuncColor = color.New(color.FgHiGreen, color.Bold) // Light green for public function names
+	paramColor      = color.New(color.FgMagenta)             // Magenta for parameters
+	returnColor     = color.New(color.FgBlue)                // Blue for return types
+	connectorColor  = color.New(color.FgWhite)               // White for tree connectors
 )
 
 // shouldIgnoreFile checks if the file should be ignored (e.g., .DS_Store, hidden files)
@@ -121,6 +123,12 @@ func extractFunctions(filePath string) ([]string, error) {
 		params := match[3]                     // Extract function parameters
 		returns := strings.TrimSpace(match[4]) // Extract return types
 
+		// Determine the color based on whether the function is public or private
+		funcColorToUse := funcColor
+		if unicode.IsUpper(rune(funcName[0])) {
+			funcColorToUse = publicFuncColor
+		}
+
 		// Format parameters with color
 		paramList := []string{}
 		if params != "" {
@@ -136,7 +144,7 @@ func extractFunctions(filePath string) ([]string, error) {
 		}
 
 		// Store formatted function output
-		functions = append(functions, fmt.Sprintf("%s(%s)%s", funcColor.Sprint(funcName), strings.Join(paramList, ", "), returnStr))
+		functions = append(functions, fmt.Sprintf("%s(%s)%s", funcColorToUse.Sprint(funcName), strings.Join(paramList, ", "), returnStr))
 	}
 
 	return functions, nil
