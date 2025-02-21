@@ -2,7 +2,7 @@
 
 git clone <https://github.com/johnjallday/gorani-coder>
 
-if you want to build:
+If you want to build:
 
 ```shell
 cd gorain-coder
