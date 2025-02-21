@@ -1,4 +1,4 @@
-module agent/coder
+module agent/gorani
 
 go 1.23.0
 

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"agent/coder/internal/docbuilder"
-	"agent/coder/internal/grab"
-	"agent/coder/internal/prompt"
-	"agent/coder/internal/tree"
+	"agent/gorani/internal/docbuilder"
+	"agent/gorani/internal/grab"
+	"agent/gorani/internal/prompt"
+	"agent/gorani/internal/tree"
 	"encoding/json"
 	"fmt"
 	"os"
