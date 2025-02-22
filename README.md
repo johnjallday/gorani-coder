@@ -1,4 +1,7 @@
-<img src="docs/logo.png" alt="Project Logo" width="300">
+# Gorani Coder
+
+Coding Agent/Tools to replace copilot.
+<img src="docs/logo.png" alt="Project Logo" width="250">
 
 # Installation
 
@@ -7,10 +10,8 @@ git clone <https://github.com/johnjallday/gorani-coder>
 If you want to build:
 
 ```shell
-cd gorain-coder
+cd gorani-coder
 go build ./cmd/gorani-coder
-```
-
 ```
 
 
