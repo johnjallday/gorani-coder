@@ -53,7 +53,7 @@ func init() {
 		if len(args) > 0 {
 			path = args[0]
 		}
-		return tree.PrintTree(path, "")
+		return tree.CopyTreeToClipboard(path)
 	})
 
 	// Register the "tree-func" command.
@@ -63,7 +63,7 @@ func init() {
 		if len(args) > 0 {
 			path = args[0]
 		}
-		return tree.PrintTreeWithFunctions(path, "")
+		return tree.CopyTreeWithFunctionsToClipboard(path)
 	})
 
 	// Register the "prompt" command.

@@ -8,7 +8,6 @@ import (
 // BuildReadme gathers docs/installation.md, docs/requirements.md,
 // and the logo image from docs/logo.png and combines them into README.md.
 func BuildReadme() {
-	logoMarkdown := `<img src="docs/logo.png" alt="Project Logo" width="250">` + "\n\n"
 	introContent, err := os.ReadFile("docs/intro.md")
 	if err != nil {
 		log.Fatalf("failed reading docs/intro.md: %v", err)
@@ -39,7 +38,7 @@ func BuildReadme() {
 	*/
 
 	// Combine the contents into a single README.md content.
-	combined := string(introContent) + logoMarkdown + string(installContent) + "\n\n" + string(reqContent) + "\n\n" + string(roadmapContent)
+	combined := string(introContent) + string(installContent) + "\n\n" + string(reqContent) + "\n\n" + string(roadmapContent)
 
 	// Write the combined content to README.md in the project root.
 	err = os.WriteFile("README.md", []byte(combined), 0644)

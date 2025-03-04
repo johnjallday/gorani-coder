@@ -1,7 +1,6 @@
 # Gorani Coder
 
 Coding Agent/Tools to replace copilot.
-<img src="docs/logo.png" alt="Project Logo" width="250">
 
 # Installation
 
@@ -14,12 +13,10 @@ cd gorani-coder
 go build ./cmd/gorani-coder
 ```
 
-
 ## Requirements
 
 go version 1.23 or higher
 neovim
-
 
 ## Roadmap
 
