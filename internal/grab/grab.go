@@ -202,3 +202,40 @@ func confirmAction() bool {
 	response = strings.TrimSpace(strings.ToLower(response))
 	return response == "y" || response == "yes"
 }
+
+// GrabFiles accepts multiple file paths, reads their contents, and copies the combined content to the clipboard.
+func GrabFiles(filePaths []string) error {
+	var allContents []string
+
+	for _, filePath := range filePaths {
+		// Verify the file exists and is not a directory
+		info, err := os.Stat(filePath)
+		if err != nil {
+			return fmt.Errorf("error: file %s not found", filePath)
+		}
+		if info.IsDir() {
+			return fmt.Errorf("error: %s is a directory, not a file", filePath)
+		}
+
+		// Read file contents
+		content, err := os.ReadFile(filePath)
+		if err != nil {
+			return fmt.Errorf("error reading file %s: %v", filePath, err)
+		}
+
+		// Format the content
+		formatted := fmt.Sprintf(">>> %s\n%s\n", filePath, string(content))
+		allContents = append(allContents, formatted)
+	}
+
+	// Join all file contents with a separator
+	combinedContent := strings.Join(allContents, "\n---\n")
+
+	// Copy to clipboard
+	if err := clipboard.WriteAll(combinedContent); err != nil {
+		return fmt.Errorf("failed to copy combined content to clipboard: %v", err)
+	}
+
+	fmt.Println("Copied multiple files' contents to clipboard.")
+	return nil
+}

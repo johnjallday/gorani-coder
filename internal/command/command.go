@@ -78,8 +78,11 @@ func init() {
 	commands["grab"] = NewCommand("grab", "Grabs code files (file or folder auto-detected)", func(args []string) error {
 		if len(args) < 1 {
 			return grab.Grab("./")
+		} else if len(args) == 1 {
+			return grab.Grab(args[0])
+		} else {
+			return grab.GrabFiles(args)
 		}
-		return grab.Grab(args[0])
 	})
 
 	// Register the "docbuilder" command.
