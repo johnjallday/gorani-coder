@@ -1,125 +1,81 @@
+The following code structure with functions is provided:
 
-package main
+├── LICENSE
+├── README.md
+├── docs
+│   ├── installation.md
+│   ├── intro.md
+│   ├── logo.png
+│   ├── requirements.md
+│   └── roadmap.md
+├── go.mod
+├── go.sum
+├── input.md
+├── internal
+│   ├── command
+│   │   └── command.go
+│   │       ├── [92;1mName[0;22m()[34m -> string[0m
+│   │       ├── [92;1mDescription[0;22m()[34m -> string[0m
+│   │       ├── [92;1mExecute[0;22m([35margs []string[0m)[34m -> error[0m
+│   │       ├── [92;1mNewCommand[0;22m([35mname[0m, [35mdescription string[0m, [35mhandler func(args []string[0m)[34m -> error) Command[0m
+│   │       ├── [32;1minit[0;22m()
+│   │       ├── [92;1mPrintCommands[0;22m()
+│   │       ├── [92;1mListCommandsJSON[0;22m()
+│   │       ├── [92;1mExecute[0;22m([35margs []string[0m)
+│   ├── docbuilder
+│   │   └── docbuilder.go
+│   │       ├── [92;1mBuildReadme[0;22m()
+│   ├── grab
+│   │   ├── grab.go
+│   │       ├── [92;1mGrab[0;22m([35minput string[0m)[34m -> error[0m
+│   │       ├── [32;1misProtectedWorkspace[0;22m([35mpath string[0m)[34m -> bool[0m
+│   │       ├── [32;1mfindFileByName[0;22m([35mroot string[0m, [35mfilename string[0m)[34m -> (string, error)[0m
+│   │       ├── [92;1mGrabCode[0;22m([35mfilePath string[0m)[34m -> error[0m
+│   │       ├── [92;1mGrabCodesProject[0;22m([35mroot string[0m)[34m -> error[0m
+│   │       ├── [32;1mcountFiles[0;22m([35mroot string[0m)[34m -> int[0m
+│   │       ├── [32;1mconfirmAction[0;22m()[34m -> bool[0m
+│   │   ├── grab_public.go
+│   │       ├── [92;1mGrabPublicFuncs[0;22m([35mroot string[0m)[34m -> error[0m
+│   │   └── grab_summary.go
+│   │       ├── [32;1mexprToString[0;22m([35mexpr ast.Expr[0m)[34m -> string[0m
+│   │       ├── [92;1mGrabSummary[0;22m([35mroot string[0m)[34m -> error[0m
+│   ├── implement
+│   │   └── implement.go
+│   │       ├── [92;1mCreateGitBranch[0;22m([35mbranchName string[0m)[34m -> error[0m
+│   │       ├── [92;1mMergeBranch[0;22m([35mbranchName string[0m)[34m -> error[0m
+│   │       ├── [92;1mPrepareImplementPrompt[0;22m()[34m -> error[0m
+│   ├── prompt
+│   │   ├── input.go
+│   │       ├── [92;1mOpenInputInNeovim[0;22m()[34m -> (string, error)[0m
+│   │   ├── openai.go
+│   │       ├── [92;1mSaveOutputToFile[0;22m([35mresponse string[0m)[34m -> error[0m
+│   │       ├── [92;1mPromptOpenai[0;22m([35minput string[0m)
+│   │       ├── [92;1mPromptFromNeovim[0;22m()
+│   │   └── output.go
+│   │       ├── [92;1mProcessScriptsFromOutputFile[0;22m()[34m -> error[0m
+│   ├── replbuilder
+│   │   └── repl_builder.go
+│   │       ├── [32;1mgrabFunctions[0;22m()
+│   ├── tree
+│   │   └── print.go
+│   │       ├── [32;1mshouldIgnoreFile[0;22m([35mname string[0m)[34m -> bool[0m
+│   │       ├── [92;1mPrintTree[0;22m([35mroot[0m, [35mindent string[0m)[34m -> error[0m
+│   │       ├── [92;1mPrintTreeWithFunctions[0;22m([35mroot[0m, [35mindent string[0m)[34m -> error[0m
+│   │       ├── [32;1mextractFunctions[0;22m([35mfilePath string[0m)[34m -> ([]string, error)[0m
+│   │       ├── [92;1mGenerateTreeString[0;22m([35mroot[0m, [35mindent string[0m)[34m -> (string, error)[0m
+│   │       ├── [92;1mGenerateTreeWithFunctionsString[0;22m([35mroot[0m, [35mindent string[0m)[34m -> (string, error)[0m
+│   │       ├── [92;1mCopyTreeToClipboard[0;22m([35mroot string[0m)[34m -> error[0m
+│   │       ├── [92;1mCopyTreeWithFunctionsToClipboard[0;22m([35mroot string[0m)[34m -> error[0m
+│   └── version
+│       └── version_control.go
+│           ├── [92;1mWriteReadme[0;22m()[34m -> error[0m
+├── main
+├── main.go
+    ├── [32;1mmain[0;22m()
+├── output.md
+├── project_info.toml
+├── settings.toml
+└── todo.md
 
-import (
- "agent/coder/internal/grab"
- "agent/coder/internal/prompt"
- "agent/coder/internal/tree"
- "encoding/json"
- "fmt"
- "os"
- "sort"
-)
 
-type Command struct {
- Name        string              `json:"name"`
- Description string              `json:"description"`
- Handler     func(args []string) `json:"-"`
-}
-
-var commands map[string]Command
-
-func init() {
- commands = map[string]Command{
-  "tree": {
-   Name:        "tree",
-   Description: "Prints the directory tree structure",
-   Handler: func(args []string) {
-    fmt.Println("Printing Directory Tree:")
-    if err := tree.PrintTree(".", ""); err != nil {
-     fmt.Println("Error printing tree:", err)
-    }
-   },
-  },
-  "tree-func": {
-   Name:        "tree-func",
-   Description: "Prints the directory tree structure with functions",
-   Handler: func(args []string) {
-    fmt.Println("Printing Directory Tree with Functions:")
-    if err := tree.PrintTreeWithFunctions(".", ""); err != nil {
-     fmt.Println("Error printing tree with functions:", err)
-    }
-   },
-  },
-  "prompt": {
-   Name:        "prompt",
-   Description: "Prompts OpenAI with user input",
-   Handler: func(args []string) {
-    fmt.Println("Enter your prompt:")
-    prompt.PromptFromNeovim()
-   },
-  },
-  "grab": {
-   Name:        "grab",
-   Description: "Grabs code files (file or folder auto-detected)",
-   Handler: func(args []string) {
-    if len(args) < 1 {
-     grab.Grab("./")
-     return
-    }
-    if err := grab.Grab(args[0]); err != nil {
-     fmt.Println("Error:", err)
-    }
-   },
-  },
-  "commands": {
-   Name:        "commands",
-   Description: "Displays available commands",
-   Handler: func(args []string) {
-    printCommands()
-   },
-  },
- }
-}
-
-func printCommands() {
- fmt.Println("Usage: go run main.go <command> <arguments>")
- fmt.Println("Available commands:")
-
- keys := make([]string, 0, len(commands))
- for k := range commands {
-  keys = append(keys, k)
- }
- sort.Strings(keys)
-
- for _, k := range keys {
-  fmt.Printf("  %-10s - %s\n", k, commands[k].Description)
- }
-}
-
-func main() {
- // Special flag: if "--list-commands" is provided, output the commands as JSON.
- if len(os.Args) > 1 && os.Args[1] == "--list-commands" {
-  var cmds []Command
-  for _, cmd := range commands {
-   cmds = append(cmds, cmd)
-  }
-  sort.Slice(cmds, func(i, j int) bool {
-   return cmds[i].Name < cmds[j].Name
-  })
-  out, err := json.Marshal(cmds)
-  if err != nil {
-   fmt.Println("Error marshaling commands:", err)
-   os.Exit(1)
-  }
-  fmt.Println(string(out))
-  return
- }
-
- if len(os.Args) < 2 {
-  printCommands()
-  os.Exit(1)
- }
-
- cmd, exists := commands[os.Args[1]]
- if !exists {
-  fmt.Println("Unknown command. Use 'commands' for available commands.")
-  printCommands()
-  return
- }
-
- // Pass remaining args to the command handler
- cmd.Handler(os.Args[2:])
-}
-
-update tree-func command so it accepts path otherwise it defaults to "."
+Please implement any missing functions or suggest improvements as needed.

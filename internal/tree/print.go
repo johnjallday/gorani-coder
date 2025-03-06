@@ -274,39 +274,3 @@ func CopyTreeWithFunctionsToClipboard(root string) error {
 	// Copy to clipboard.
 	return clipboard.WriteAll(treeStr)
 }
-
-// ---------------------
-// Main: Demonstration
-// ---------------------
-
-func main() {
-	rootDir := "./" // Change this to your target directory
-
-	// Print the colored tree.
-	fmt.Println("Colored Tree:")
-	if err := PrintTree(rootDir, ""); err != nil {
-		fmt.Println("Error printing colored tree:", err)
-	}
-
-	// Print the colored tree with function details.
-	fmt.Println("\nColored Tree with Functions:")
-	if err := PrintTreeWithFunctions(rootDir, ""); err != nil {
-		fmt.Println("Error printing colored tree with functions:", err)
-	}
-
-	// Print and copy the plain-text tree.
-	fmt.Println("\nPlain-Text Tree (copied to clipboard):")
-	if err := CopyTreeToClipboard(rootDir); err != nil {
-		fmt.Println("Error copying plain-text tree to clipboard:", err)
-	} else {
-		fmt.Println("Plain-text tree copied to clipboard!")
-	}
-
-	// Print and copy the plain-text tree with functions.
-	fmt.Println("\nPlain-Text Tree with Functions (copied to clipboard):")
-	if err := CopyTreeWithFunctionsToClipboard(rootDir); err != nil {
-		fmt.Println("Error copying plain-text tree with functions to clipboard:", err)
-	} else {
-		fmt.Println("Plain-text tree with functions copied to clipboard!")
-	}
-}

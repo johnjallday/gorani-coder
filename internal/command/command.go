@@ -3,6 +3,7 @@ package command
 import (
 	"agent/gorani/internal/docbuilder"
 	"agent/gorani/internal/grab"
+	"agent/gorani/internal/implement"
 	"agent/gorani/internal/prompt"
 	"agent/gorani/internal/tree"
 	"encoding/json"
@@ -85,6 +86,37 @@ func init() {
 	commands["docbuilder"] = NewCommand("docbuilder", "Generates README.md using documentation builder", func(args []string) error {
 		docbuilder.BuildReadme()
 		return nil
+	})
+
+	// Register the "implement" command.
+	commands["implement"] = NewCommand("implement", "Manages Git branches (create, merge) or prepares implementation prompt", func(args []string) error {
+		if len(args) < 1 {
+			fmt.Println("Usage: implement <create|merge|prepare> [branchName]")
+			return nil
+		}
+		action := args[0]
+		switch action {
+		case "create":
+			if len(args) < 2 {
+				fmt.Println("Usage: implement create <branchName>")
+				return nil
+			}
+			branchName := args[1]
+			return implement.CreateGitBranch(branchName)
+		case "merge":
+			if len(args) < 2 {
+				fmt.Println("Usage: implement merge <branchName>")
+				return nil
+			}
+			branchName := args[1]
+			return implement.MergeBranch(branchName)
+		case "prepare":
+			return implement.PrepareImplementPrompt()
+		default:
+			fmt.Println("Unknown action:", action)
+			fmt.Println("Usage: implement <create|merge|prepare> [branchName]")
+			return nil
+		}
 	})
 
 	// Register the "commands" command.
