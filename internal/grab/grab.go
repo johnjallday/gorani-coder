@@ -11,7 +11,7 @@ import (
 )
 
 // Max files to allow grabbing before warning the user
-const maxFilesLimit = 500
+const maxFilesLimit = 200
 
 // Files that prevent grabbing when detected
 var protectedFiles = []string{".config", "ws_info.toml"}
@@ -130,8 +130,22 @@ func GrabCode(filePath string) error {
 	return nil
 }
 
-// GrabCodesProject copies all contents of found code files in a project to the clipboard
+// GrabCodesProject copies all contents of found code files in a project directory to the clipboard.
 func GrabCodesProject(root string) error {
+	content, err := getCodesProjectContent(root)
+	if err != nil {
+		return err
+	}
+
+	if err := clipboard.WriteAll(content); err != nil {
+		return fmt.Errorf("failed to copy to clipboard: %v", err)
+	}
+	fmt.Println("Copied all code files' contents to clipboard.")
+	return nil
+}
+
+// getCodesProjectContent collects and formats code files' contents from a directory without writing to the clipboard.
+func getCodesProjectContent(root string) (string, error) {
 	var fileContents []string
 	supportedExtensions := []string{
 		".go", ".py", ".js", ".java", ".cpp", ".c", ".cs", ".rb", ".php", ".html",
@@ -154,30 +168,25 @@ func GrabCodesProject(root string) error {
 					if readErr != nil {
 						fmt.Println("Error reading file:", path, readErr)
 					} else {
-						// Store content
+						// Store formatted content
 						fileContents = append(fileContents, fmt.Sprintf(">>> %s\n%s\n", path, string(content)))
 					}
+					// Once matched, no need to check further extensions
+					break
 				}
 			}
 		}
 		return nil
 	})
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	// Copy all content to clipboard
-	if len(fileContents) > 0 {
-		clipboardContent := strings.Join(fileContents, "\n---\n") // Separate files with ---
-		if copyErr := clipboard.WriteAll(clipboardContent); copyErr != nil {
-			return fmt.Errorf("failed to copy to clipboard: %v", copyErr)
-		}
-		fmt.Println("Copied all code files' contents to clipboard.")
-	} else {
-		fmt.Println("No code files found.")
+	if len(fileContents) == 0 {
+		return "", fmt.Errorf("no code files found in %s", root)
 	}
 
-	return nil
+	return strings.Join(fileContents, "\n---\n"), nil
 }
 
 // countFiles counts the number of files in a directory (to prevent excessive grabbing)
@@ -240,5 +249,59 @@ func GrabFiles(filePaths []string) error {
 	}
 
 	fmt.Println("Copied multiple files' contents to clipboard.")
+	return nil
+}
+
+// GrabMultipleFolders accepts multiple folder paths, gathers code files from each, and writes the combined content to the clipboard.
+func GrabMultipleFolders(folders []string) error {
+	var allContents []string
+
+	for _, folder := range folders {
+		// Check if the folder exists and is a directory
+		info, err := os.Stat(folder)
+		if err != nil || !info.IsDir() {
+			fmt.Printf("Skipping %s: not a valid folder\n", folder)
+			continue
+		}
+
+		// Skip if it's a protected workspace
+		if isProtectedWorkspace(folder) {
+			fmt.Printf("Skipping %s: protected workspace\n", folder)
+			continue
+		}
+
+		// Count files and confirm if too many files are present
+		fileCount := countFiles(folder)
+		if fileCount == -1 {
+			fmt.Printf("Skipping %s: unable to count files\n", folder)
+			continue
+		}
+		if fileCount > maxFilesLimit {
+			fmt.Printf("⚠️ Warning: The directory '%s' contains %d files. Proceed? (y/N): ", folder, fileCount)
+			if !confirmAction() {
+				fmt.Printf("Skipping %s: too many files to grab\n", folder)
+				continue
+			}
+		}
+
+		// Get the code files' content from the folder
+		folderContent, err := getCodesProjectContent(folder)
+		if err != nil {
+			fmt.Printf("Error grabbing folder %s: %v\n", folder, err)
+			continue
+		}
+		allContents = append(allContents, folderContent)
+	}
+
+	if len(allContents) == 0 {
+		return fmt.Errorf("no folder content was grabbed")
+	}
+
+	// Combine all folder contents with a clear separator
+	combinedContent := strings.Join(allContents, "\n===\n")
+	if err := clipboard.WriteAll(combinedContent); err != nil {
+		return fmt.Errorf("failed to copy combined content to clipboard: %v", err)
+	}
+	fmt.Println("Copied content of multiple folders to clipboard.")
 	return nil
 }

@@ -1,7 +1,7 @@
-- [ ] grab multiple folders #project:gorani-coder #workspace:johnj-programming #created:2025-03-08
-- [ ] grab func update to grab structs and interface as well #created:2025-03-07 #project:gorani-coder #workspace:johnj-programming
+- [x] grab multiple folders #created:2025-03-08 #project:gorani-coder #workspace:johnj-programming #completed:2025-03-09
+- [ ] grab summary structs interface and funcs #created:2025-03-07 #project:gorani-coder #workspace:johnj-programming
 - [x] multifile grabber #created:2025-02-21 #project:gorani-coder #workspace:johnj-programming #completed:2025-03-08
 - [ ] repl builder #created:2025-02-20 #project:gorani-coder #workspace:johnj-programming
-- [~] command builder #created:2025-02-14 #project:gorani-coder #workspace:johnj-programming
+- [x] command builder #created:2025-02-14 #project:gorani-coder #workspace:johnj-programming #completed:2025-03-09
 - [ ] doc builder #created:2025-02-13 #project:gorani-coder #workspace:johnj-programming
 - [x] implementation manager #created:2025-02-13 #project:gorani-coder #workspace:johnj-programming #completed:2025-03-08
