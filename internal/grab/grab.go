@@ -133,7 +133,10 @@ func GrabCode(filePath string) error {
 // GrabCodesProject copies all contents of found code files in a project to the clipboard
 func GrabCodesProject(root string) error {
 	var fileContents []string
-	supportedExtensions := []string{".go", ".py", ".js", ".java", ".cpp", ".c", ".cs", ".rb", ".php"}
+	supportedExtensions := []string{
+		".go", ".py", ".js", ".java", ".cpp", ".c", ".cs", ".rb", ".php", ".html",
+		".css", ".sh",
+	}
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

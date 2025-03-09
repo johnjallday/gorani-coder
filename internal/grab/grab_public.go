@@ -1,106 +1,100 @@
 package grab
 
 import (
-	"bytes"
+	"bufio"
 	"fmt"
-	"go/ast"
-	"go/parser"
-	"go/token"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
-
-	"github.com/atotto/clipboard"
+	"unicode"
 )
 
-// GrabPublicFuncs walks through Go files under the provided root directory,
-// collects detailed information about public functions (exported functions),
-// and copies the accumulated output to the clipboard.
-func GrabPublicFuncs(root string) error {
-	var outputBuffer bytes.Buffer
+// funcRegex matches Go function definitions.
+var funcRegex = regexp.MustCompile(`(?m)^\s*func\s+(\(\w+\s+\*?\w+\)\s+)?([A-Z]\w*)\s*\(([^)]*)\)\s*([^{]*)`)
+
+// GrabPublicFuncsWithDescriptions extracts public function names and their descriptions.
+func GrabPublicFuncsWithDescriptions(root string) (map[string]string, error) {
+	functions := make(map[string]string)
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		// Only process Go files (skip directories and non-Go files)
-		if info.IsDir() || filepath.Ext(path) != ".go" {
-			return nil
-		}
 
-		fset := token.NewFileSet()
-		file, err := parser.ParseFile(fset, path, nil, parser.ParseComments)
-		if err != nil {
-			return fmt.Errorf("error parsing file %s: %v", path, err)
-		}
-
-		// Buffer to collect public functions from this file.
-		var fileOutput bytes.Buffer
-
-		// Iterate over declarations to find function declarations.
-		for _, decl := range file.Decls {
-			fn, ok := decl.(*ast.FuncDecl)
-			if !ok {
-				continue
+		if !info.IsDir() && strings.HasSuffix(info.Name(), ".go") {
+			fileFuncs, err := extractPublicFuncsWithDescriptions(path)
+			if err != nil {
+				return err
 			}
-
-			// Check if the function is public (exported) using ast.IsExported.
-			if !ast.IsExported(fn.Name.Name) {
-				continue
+			for name, desc := range fileFuncs {
+				functions[name] = desc
 			}
-
-			// Build parameter list.
-			var params []string
-			if fn.Type.Params != nil {
-				for _, field := range fn.Type.Params.List {
-					typeStr := exprToString(field.Type)
-					// If no parameter name is provided, only the type is recorded.
-					if len(field.Names) == 0 {
-						params = append(params, typeStr)
-					} else {
-						for _, name := range field.Names {
-							params = append(params, fmt.Sprintf("%s %s", name.Name, typeStr))
-						}
-					}
-				}
-			}
-			paramStr := strings.Join(params, ", ")
-
-			// Build result list.
-			var results []string
-			if fn.Type.Results != nil {
-				for _, field := range fn.Type.Results.List {
-					results = append(results, exprToString(field.Type))
-				}
-			}
-			resultStr := ""
-			if len(results) > 0 {
-				resultStr = fmt.Sprintf(" -> %s", strings.Join(results, ", "))
-			}
-
-			fileOutput.WriteString(fmt.Sprintf("  Public Function: %s(%s)%s\n", fn.Name.Name, paramStr, resultStr))
-		}
-
-		// Only add output for the file if at least one public function was found.
-		if fileOutput.Len() > 0 {
-			outputBuffer.WriteString(fmt.Sprintf("File: %s\n", path))
-			outputBuffer.Write(fileOutput.Bytes())
-			outputBuffer.WriteString("\n")
 		}
 		return nil
 	})
 	if err != nil {
+		return nil, err
+	}
+
+	return functions, nil
+}
+
+// extractPublicFuncsWithDescriptions reads a Go file and extracts public function names with their descriptions.
+func extractPublicFuncsWithDescriptions(filePath string) (map[string]string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	functions := make(map[string]string)
+	scanner := bufio.NewScanner(file)
+	var lastComment string
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		trimmed := strings.TrimSpace(line)
+
+		// Capture comment lines
+		if strings.HasPrefix(trimmed, "//") {
+			lastComment = strings.TrimPrefix(trimmed, "// ")
+			continue
+		}
+
+		// Match public function definition
+		matches := funcRegex.FindStringSubmatch(line)
+		if len(matches) > 2 {
+			funcName := matches[2]
+
+			// Ensure it's a public function (starts with an uppercase letter)
+			if unicode.IsUpper(rune(funcName[0])) {
+				functions[funcName] = lastComment
+			}
+
+			// Reset lastComment after function is found
+			lastComment = ""
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return functions, nil
+}
+
+// PrintPublicFunctions prints the extracted public functions and their descriptions.
+func PrintPublicFunctions(root string) error {
+	functions, err := GrabPublicFuncsWithDescriptions(root)
+	if err != nil {
 		return err
 	}
 
-	// Copy the collected output to the clipboard or inform the user if none was found.
-	if outputBuffer.Len() == 0 {
-		fmt.Println("No public functions found.")
-	} else {
-		if err := clipboard.WriteAll(outputBuffer.String()); err != nil {
-			return fmt.Errorf("failed to copy to clipboard: %v", err)
-		}
-		fmt.Println("Copied public functions to clipboard.")
+	fmt.Println("Public Functions and Descriptions:")
+	for name, desc := range functions {
+		fmt.Printf("- %s: %s\n", name, desc)
 	}
+
 	return nil
 }
