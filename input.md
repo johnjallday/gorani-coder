@@ -1,81 +1,120 @@
-The following code structure with functions is provided:
+I want to build a feature called smart-grab.
+Feature Description:
+I want to implement a grab function where it only grabs necessary files
 
-├── LICENSE
-├── README.md
-├── docs
-│   ├── installation.md
-│   ├── intro.md
-│   ├── logo.png
-│   ├── requirements.md
-│   └── roadmap.md
-├── go.mod
-├── go.sum
-├── input.md
-├── internal
-│   ├── command
-│   │   └── command.go
-│   │       ├── [92;1mName[0;22m()[34m -> string[0m
-│   │       ├── [92;1mDescription[0;22m()[34m -> string[0m
-│   │       ├── [92;1mExecute[0;22m([35margs []string[0m)[34m -> error[0m
-│   │       ├── [92;1mNewCommand[0;22m([35mname[0m, [35mdescription string[0m, [35mhandler func(args []string[0m)[34m -> error) Command[0m
-│   │       ├── [32;1minit[0;22m()
-│   │       ├── [92;1mPrintCommands[0;22m()
-│   │       ├── [92;1mListCommandsJSON[0;22m()
-│   │       ├── [92;1mExecute[0;22m([35margs []string[0m)
-│   ├── docbuilder
-│   │   └── docbuilder.go
-│   │       ├── [92;1mBuildReadme[0;22m()
-│   ├── grab
-│   │   ├── grab.go
-│   │       ├── [92;1mGrab[0;22m([35minput string[0m)[34m -> error[0m
-│   │       ├── [32;1misProtectedWorkspace[0;22m([35mpath string[0m)[34m -> bool[0m
-│   │       ├── [32;1mfindFileByName[0;22m([35mroot string[0m, [35mfilename string[0m)[34m -> (string, error)[0m
-│   │       ├── [92;1mGrabCode[0;22m([35mfilePath string[0m)[34m -> error[0m
-│   │       ├── [92;1mGrabCodesProject[0;22m([35mroot string[0m)[34m -> error[0m
-│   │       ├── [32;1mcountFiles[0;22m([35mroot string[0m)[34m -> int[0m
-│   │       ├── [32;1mconfirmAction[0;22m()[34m -> bool[0m
-│   │   ├── grab_public.go
-│   │       ├── [92;1mGrabPublicFuncs[0;22m([35mroot string[0m)[34m -> error[0m
-│   │   └── grab_summary.go
-│   │       ├── [32;1mexprToString[0;22m([35mexpr ast.Expr[0m)[34m -> string[0m
-│   │       ├── [92;1mGrabSummary[0;22m([35mroot string[0m)[34m -> error[0m
-│   ├── implement
-│   │   └── implement.go
-│   │       ├── [92;1mCreateGitBranch[0;22m([35mbranchName string[0m)[34m -> error[0m
-│   │       ├── [92;1mMergeBranch[0;22m([35mbranchName string[0m)[34m -> error[0m
-│   │       ├── [92;1mPrepareImplementPrompt[0;22m()[34m -> error[0m
-│   ├── prompt
-│   │   ├── input.go
-│   │       ├── [92;1mOpenInputInNeovim[0;22m()[34m -> (string, error)[0m
-│   │   ├── openai.go
-│   │       ├── [92;1mSaveOutputToFile[0;22m([35mresponse string[0m)[34m -> error[0m
-│   │       ├── [92;1mPromptOpenai[0;22m([35minput string[0m)
-│   │       ├── [92;1mPromptFromNeovim[0;22m()
-│   │   └── output.go
-│   │       ├── [92;1mProcessScriptsFromOutputFile[0;22m()[34m -> error[0m
-│   ├── replbuilder
-│   │   └── repl_builder.go
-│   │       ├── [32;1mgrabFunctions[0;22m()
-│   ├── tree
-│   │   └── print.go
-│   │       ├── [32;1mshouldIgnoreFile[0;22m([35mname string[0m)[34m -> bool[0m
-│   │       ├── [92;1mPrintTree[0;22m([35mroot[0m, [35mindent string[0m)[34m -> error[0m
-│   │       ├── [92;1mPrintTreeWithFunctions[0;22m([35mroot[0m, [35mindent string[0m)[34m -> error[0m
-│   │       ├── [32;1mextractFunctions[0;22m([35mfilePath string[0m)[34m -> ([]string, error)[0m
-│   │       ├── [92;1mGenerateTreeString[0;22m([35mroot[0m, [35mindent string[0m)[34m -> (string, error)[0m
-│   │       ├── [92;1mGenerateTreeWithFunctionsString[0;22m([35mroot[0m, [35mindent string[0m)[34m -> (string, error)[0m
-│   │       ├── [92;1mCopyTreeToClipboard[0;22m([35mroot string[0m)[34m -> error[0m
-│   │       ├── [92;1mCopyTreeWithFunctionsToClipboard[0;22m([35mroot string[0m)[34m -> error[0m
-│   └── version
-│       └── version_control.go
-│           ├── [92;1mWriteReadme[0;22m()[34m -> error[0m
-├── main
-├── main.go
-    ├── [32;1mmain[0;22m()
-├── output.md
-├── project_info.toml
-├── settings.toml
-└── todo.md
+Here is the summary of the code:
+
+File: cmd/commandbuilder.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/docbuilder.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/grab.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/grabpublic.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/implement.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/prompt.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/registered_actions.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/root.go (package cmd)
+  [Package: cmd] Function: Execute
+
+File: cmd/smartgrab.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/summary.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/tree.go (package cmd)
+  [Package: cmd] Function: init
+
+File: cmd/treefunc.go (package cmd)
+  [Package: cmd] Function: init
+
+File: internal/commandbuilder/commandbuilder.go (package commandbuilder)
+  [Package: commandbuilder] Function: RegisterActions
+  [Package: commandbuilder] Function: escapeString
+
+File: internal/docbuilder/docbuilder.go (package docbuilder)
+  [Package: docbuilder] Function: BuildReadme
+
+File: internal/grab/grab.go (package grab)
+  [Package: grab] Function: Grab
+  [Package: grab] Function: isProtectedWorkspace
+  [Package: grab] Function: findFileByName
+  [Package: grab] Function: GrabCode
+  [Package: grab] Function: GrabCodesProject
+  [Package: grab] Function: getCodesProjectContent
+  [Package: grab] Function: countFiles
+  [Package: grab] Function: confirmAction
+  [Package: grab] Function: GrabFiles
+  [Package: grab] Function: GrabMultipleFolders
+
+File: internal/grab/grab_public.go (package grab)
+  [Package: grab] Function: GrabPublicFuncsWithDescriptions
+  [Package: grab] Function: extractPublicFuncsWithDescriptions
+  [Package: grab] Function: PrintPublicFunctions
+
+File: internal/grab/grab_summary.go (package grab)
+  [Package: grab] Function: exprToString
+  [Package: grab] Function: buildSummary
+  [Package: grab] Function: GrabSummary
+
+File: internal/grab/smart_grab.go (package grab)
+  [Package: grab] Function: SmartGrab
+  [Package: grab] Struct: Output
+  [Package: grab] Function: getFeatureBranch
+  [Package: grab] Function: buildPrompt
+
+File: internal/implement/implement.go (package implement)
+  [Package: implement] Function: CreateGitBranch
+  [Package: implement] Function: MergeBranch
+  [Package: implement] Function: PrepareImplementPrompt
+  [Package: implement] Function: Implement
+  [Package: implement] Interface: ImplementationManager
+
+File: internal/prompt/input.go (package prompt)
+  [Package: prompt] Function: OpenInputInNeovim
+
+File: internal/prompt/openai.go (package prompt)
+  [Package: prompt] Function: SaveOutputToFile
+  [Package: prompt] Struct: CodeResponse
+  [Package: prompt] Function: GenerateSchema
+  [Package: prompt] Function: PromptOpenai
+  [Package: prompt] Function: PromptFromNeovim
+  [Package: prompt] Struct: FileResponse
+  [Package: prompt] Function: PromptOpenaiFiles
+
+File: internal/prompt/output.go (package prompt)
+  [Package: prompt] Function: ProcessScriptsFromOutputFile
+
+File: internal/replbuilder/repl_builder.go (package repl)
+  [Package: repl] Function: grabFunctions
+
+File: internal/tree/print.go (package tree)
+  [Package: tree] Function: shouldIgnoreFile
+  [Package: tree] Function: PrintTree
+  [Package: tree] Function: PrintTreeWithFunctions
+  [Package: tree] Function: extractFunctions
+  [Package: tree] Function: GenerateTreeString
+  [Package: tree] Function: GenerateTreeWithFunctionsString
+  [Package: tree] Function: CopyTreeToClipboard
+  [Package: tree] Function: CopyTreeWithFunctionsToClipboard
+
+File: internal/version/version_control.go (package version)
+  [Package: version] Function: WriteReadme
+
+File: main.go (package main)
+  [Package: main] Function: main
 
 
-Please implement any missing functions or suggest improvements as needed.
+Give me a list of files needed in order to build this feature.

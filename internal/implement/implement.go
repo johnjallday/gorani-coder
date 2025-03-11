@@ -1,6 +1,7 @@
 package implement
 
 import (
+	"agent/gorani/internal/prompt"
 	"agent/gorani/internal/tree"
 	"fmt"
 	"os"
@@ -92,6 +93,20 @@ func PrepareImplementPrompt() error {
 	}
 
 	fmt.Println("Prompt prepared in input.md. You can now review/edit it or use your prompt command to send it to OpenAI.")
+	return nil
+}
+
+func Implement() error {
+	PrepareImplementPrompt()
+
+	input, err := os.ReadFile("input.md")
+	if err != nil {
+		return fmt.Errorf("error reading input.md file: %w", err)
+	}
+
+	prompt.PromptOpenaiFiles(string(input)) // no return value
+
+	// handle outputfiles.
 	return nil
 }
 

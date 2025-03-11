@@ -28,6 +28,8 @@ var implementCmd = &cobra.Command{
 			return implement.MergeBranch(branchName)
 		case "prepare":
 			return implement.PrepareImplementPrompt()
+		case "prompt":
+			return implement.Implement()
 		default:
 			return fmt.Errorf("Unknown action: %s", action)
 		}
