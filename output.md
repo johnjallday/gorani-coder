@@ -1,1 +1,1 @@
-{"files":["cmd/smartgrab.go","internal/grab/smart_grab.go","cmd/grab.go","internal/grab/grab.go"]}
+{"files":["internal/prompt/openai.go","cmd/root.go","main.go"]}

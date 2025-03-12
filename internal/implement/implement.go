@@ -107,6 +107,7 @@ func Implement() error {
 	prompt.PromptOpenaiFiles(string(input)) // no return value
 
 	// handle outputfiles.
+
 	return nil
 }
 

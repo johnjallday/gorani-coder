@@ -1,13 +1,63 @@
 package prompt
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/invopop/jsonschema"
+	"github.com/joho/godotenv"
 	"github.com/openai/openai-go"
 )
+
+// init loads environment variables from a .env file when the package initializes.
+// It first checks for the OPENAI_API_KEY. If not found, it prompts the user for it.
+func init() {
+	// Try to load .env file (if it exists).
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Warning: no .env file found.")
+	}
+
+	// Check if the OPENAI_API_KEY is already set.
+	if apiKey := os.Getenv("OPENAI_API_KEY"); apiKey != "" {
+		fmt.Println("OPENAI_API_KEY found in environment.")
+		return
+	}
+
+	// If not set, prompt the user for the API key.
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter your OpenAI API key: ")
+	apiKey, err := reader.ReadString('\n')
+	if err != nil {
+		fmt.Println("Error reading API key:", err)
+		return
+	}
+	apiKey = strings.TrimSpace(apiKey)
+	if apiKey == "" {
+		fmt.Println("No API key provided. OpenAI functionality may not work correctly.")
+		return
+	}
+
+	// Write the provided API key to a .env file.
+	if err := WriteEnvFile(apiKey); err != nil {
+		fmt.Println("Error writing .env file:", err)
+	} else {
+		fmt.Println(".env file written successfully.")
+		// Optionally, reload the environment variables so that the key is available.
+		_ = godotenv.Load()
+	}
+}
+
+// WriteEnvFile writes a .env file in the current directory with the provided OpenAI API key.
+func WriteEnvFile(apiKey string) error {
+	envContent := fmt.Sprintf("OPENAI_API_KEY=%s\n", apiKey)
+	if err := os.WriteFile(".env", []byte(envContent), 0644); err != nil {
+		return fmt.Errorf("failed to write .env file: %v", err)
+	}
+	return nil
+}
 
 // SaveOutputToFile saves the given response to output.md.
 func SaveOutputToFile(response string) error {
@@ -25,29 +75,18 @@ type CodeResponse struct {
 }
 
 func GenerateSchema[T any]() interface{} {
-	// Structured Outputs uses a subset of JSON schema
-	// These flags are necessary to comply with the subset
 	reflector := jsonschema.Reflector{
 		AllowAdditionalProperties: false,
 		DoNotReference:            true,
 	}
 	var v T
-	schema := reflector.Reflect(v)
-	return schema
+	return reflector.Reflect(v)
 }
 
 var codeResponseSchema = GenerateSchema[CodeResponse]()
 
 // PromptOpenai sends the given input to OpenAI and expects a structured JSON response.
-// The response should follow this schema:
-//
-//	{
-//	  "filename": "string",
-//	  "scripts": ["string", ...]
-//	}
 func PromptOpenai(input string) {
-	// Define the expected structured output.
-	// Generate the JSON schema for CodeResponse.
 	schemaParam := openai.ResponseFormatJSONSchemaJSONSchemaParam{
 		Name:        openai.F("code_response"),
 		Description: openai.F("Response containing a filename and scripts"),
@@ -55,11 +94,9 @@ func PromptOpenai(input string) {
 		Strict:      openai.Bool(true),
 	}
 
-	// Set up the OpenAI client and context.
 	client := openai.NewClient()
 	ctx := context.Background()
 
-	// Call the Chat Completions API with the structured response format.
 	chat, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage(input),
@@ -70,7 +107,6 @@ func PromptOpenai(input string) {
 				JSONSchema: openai.F(schemaParam),
 			},
 		),
-		// Use a model that supports structured outputs.
 		Model: openai.F(openai.ChatModelGPT4o2024_08_06),
 	})
 	if err != nil {
@@ -78,7 +114,6 @@ func PromptOpenai(input string) {
 		return
 	}
 
-	// Save the raw response to output.md.
 	if err := SaveOutputToFile(chat.Choices[0].Message.Content); err != nil {
 		fmt.Println("Error saving output:", err)
 	} else {
@@ -93,16 +128,15 @@ func PromptFromNeovim() {
 		fmt.Println("Error:", err)
 		return
 	}
-	PromptOpenai(input) // Call PromptOpenai with the edited input.
+	PromptOpenai(input)
 }
 
 type FileResponse struct {
 	Files []string `json:"files"`
 }
 
-// promptOpenAIfor Files output
+// PromptOpenaiFiles sends the given input to OpenAI expecting a response with only a list of file names.
 func PromptOpenaiFiles(input string) {
-	// Generate JSON schema for FileResponse using the GenerateSchema function.
 	codeResponseSchema := GenerateSchema[FileResponse]()
 
 	schemaParam := openai.ResponseFormatJSONSchemaJSONSchemaParam{
@@ -112,11 +146,9 @@ func PromptOpenaiFiles(input string) {
 		Strict:      openai.Bool(true),
 	}
 
-	// Set up the OpenAI client and context.
 	client := openai.NewClient()
 	ctx := context.Background()
 
-	// Call the Chat Completions API with the structured response format.
 	chat, err := client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
 			openai.UserMessage(input),
@@ -127,7 +159,6 @@ func PromptOpenaiFiles(input string) {
 				JSONSchema: openai.F(schemaParam),
 			},
 		),
-		// Use a model that supports structured outputs.
 		Model: openai.F(openai.ChatModelGPT4o2024_08_06),
 	})
 	if err != nil {
@@ -135,7 +166,6 @@ func PromptOpenaiFiles(input string) {
 		return
 	}
 
-	// Save the raw response to output.md.
 	if err := SaveOutputToFile(chat.Choices[0].Message.Content); err != nil {
 		fmt.Println("Error saving output:", err)
 	} else {

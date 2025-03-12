@@ -1,6 +1,6 @@
-I want to build a feature called smart-grab.
+I want to build a feature called api-key-env-setup.
 Feature Description:
-I want to implement a grab function where it only grabs necessary files
+I need  a function to write .env file in openai.go
 
 Here is the summary of the code:
 
@@ -86,6 +86,7 @@ File: internal/prompt/input.go (package prompt)
   [Package: prompt] Function: OpenInputInNeovim
 
 File: internal/prompt/openai.go (package prompt)
+  [Package: prompt] Function: init
   [Package: prompt] Function: SaveOutputToFile
   [Package: prompt] Struct: CodeResponse
   [Package: prompt] Function: GenerateSchema

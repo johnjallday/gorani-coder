@@ -1,3 +1,4 @@
 .DS_Store
 project_info.toml
 main
+.env
