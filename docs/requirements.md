@@ -1,16 +1,18 @@
 ## Requirements
 
-go version 1.23 or higher
-openai api key
-
-Setting OpenAI API Key as an Environment Variable
+Go Environment: Ensure you have Go installed.
+OpenAI Account: You must have an active OpenAI account.
 
 Obtaining Your OpenAI API Key
+Sign Up or Log In:
 
-Navigate to API Keys: Log in to your OpenAI account and find the “API keys” section.
+Visit the OpenAI website and sign up for an account, or log in if you already have one.
+Navigate to the API Keys Section:
 
-Create a New API Key: Click on the “Create new API key” button.
+Once logged in, go to your account dashboard.
+Navigate to the API Keys page by clicking on your account settings or directly visit OpenAI API Keys.
+Generate a New API Key:
 
-Copy and Store Your API Key: Store the generated API key in a secure location
-1
-.
+Click the "Create new secret key" button.
+Copy the generated API key immediately (this is your only chance to see the full key).
+Important: Keep your API key secure. Do not share it publicly or commit it to source control.
